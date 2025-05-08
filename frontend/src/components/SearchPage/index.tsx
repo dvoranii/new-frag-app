@@ -11,6 +11,8 @@ interface SearchPageProps {
     isLoading: boolean;
     error: string | null;
     selectedFragrance: Fragrance | null;
+    loadingId: string | null;
+    errorId: string | null;
 }
 
 export const SearchPage = ({
@@ -19,14 +21,17 @@ export const SearchPage = ({
     results,
     isLoading,
     error,
-    selectedFragrance
+    selectedFragrance,
+    loadingId,
+    errorId
 }: SearchPageProps) => {
     const [query, setQuery] = useState("");
+
 
     const handleSearch = (searchQuery: string) => {
         setQuery(searchQuery);
         onSearch(searchQuery);
-      };
+    };
 
       return (
         <S.Container>
@@ -39,6 +44,9 @@ export const SearchPage = ({
           <SearchResults 
             results={results}
             onSelect={onSelect}
+            selectedId={selectedFragrance?.id || null}
+            loadingId={loadingId}
+            errorId={errorId}
           />
           {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
           {selectedFragrance && (

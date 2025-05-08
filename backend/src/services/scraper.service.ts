@@ -18,9 +18,7 @@ class ScraperService {
       slowMo: 50,
     });
     
-    // this.page = await this.browser.newPage();
-    // await this.page.goto('https://www.fragrantica.com/perfume-finder/');
-    // await this.page.waitForSelector('#autocomplete-0-input');
+
     await this.resetPage();
     this.isInitialized = true;
   }
@@ -53,41 +51,42 @@ class ScraperService {
     }
   }
 
-  async searchFragrances(query: string): Promise<Fragrance[]> {
-    await this.ensureReady();
+// scraper.service.ts
+async searchFragrances(query: string): Promise<Fragrance[]> {
+  if (!this.page) throw new Error('Page not initialized');
 
-    try {
-      // Clear previous search
-      await this.page!.click('#autocomplete-0-input', { clickCount: 3 });
-      await this.page!.keyboard.press('Backspace');
+  try {
+    // Clear previous search
+    await this.page.click('#autocomplete-0-input', {clickCount: 3});
+    await this.page.keyboard.press('Backspace');
 
-      // Type new query
-      await this.page!.type('#autocomplete-0-input', query);
+    // Type new query
+    await this.page.type('#autocomplete-0-input', query);
 
-      // Wait for results
-      await this.page!.waitForSelector('.aa-List', { visible: true, timeout: 10000 });
+    // Wait for results
+    await this.page.waitForSelector('.aa-Item', { visible: true, timeout: 5000 });
 
-      // Extract results
-      return await this.page!.evaluate((): Fragrance[] => {
-        const items = Array.from(document.querySelectorAll('.aa-Item'));
-        return items.map(item => {
-          const titleParts = item.querySelector('.aa-ItemContentTitle')?.textContent?.split(' - ') || [];
-          return {
-            id: item.id,
-            title: titleParts[0]?.trim() || '',
-            image: item.querySelector('.aa-ItemIcon')?.getAttribute('src') || '',
-            brand: titleParts[0]?.split(' ').slice(0, -1).join(' ') || '',
-            year: titleParts[1]?.trim(),
-            gender: titleParts[2]?.trim()
-          };
-        });
+    // Extract results WITH URLs
+    return await this.page.evaluate((): Fragrance[] => {
+      const items = Array.from(document.querySelectorAll('.aa-Item'));
+      return items.map(item => {
+        const titleParts = item.querySelector('.aa-ItemContentTitle')?.textContent?.split(' - ') || [];
+  
+        return {
+          id: item.id,
+          title: titleParts[0]?.trim() || '',
+          image: item.querySelector('.aa-ItemIcon')?.getAttribute('src') || '',
+          brand: titleParts[0]?.split(' ').slice(0, -1).join(' ') || '',
+          year: titleParts[1]?.trim(),
+          gender: titleParts[2]?.trim(),
+        };
       });
-    } catch (error) {
-      console.error('Search failed, attempting reset...', error);
-      await this.resetPage();
-      throw error;
-    }
+    });
+  } catch (error) {
+    console.error('Search failed:', error);
+    throw error;
   }
+}
 
   async selectFragrance(itemId: string): Promise<string> {
     await this.ensureReady();
@@ -105,6 +104,7 @@ class ScraperService {
       });
       
       if (!url) throw new Error('Fragrance URL not found');
+      console.log(url);
       return url;
     } catch (error) {
       console.error('Selection failed, attempting reset...', error);
