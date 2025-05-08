@@ -10,7 +10,6 @@ interface SearchPageProps {
     results: Fragrance[];
     isLoading: boolean;
     error: string | null;
-    selectedFragrance: Fragrance | null;
     loadingId: string | null;
     errorId: string | null;
 }
@@ -21,7 +20,6 @@ export const SearchPage = ({
     results,
     isLoading,
     error,
-    selectedFragrance,
     loadingId,
     errorId
 }: SearchPageProps) => {
@@ -44,21 +42,10 @@ export const SearchPage = ({
           <SearchResults 
             results={results}
             onSelect={onSelect}
-            selectedId={selectedFragrance?.id || null}
             loadingId={loadingId}
             errorId={errorId}
           />
           {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
-          {selectedFragrance && (
-            <S.SelectedFragrance>
-              <p>Selected fragrance: <strong>{selectedFragrance.title}</strong></p>
-              <p>
-                <a href={selectedFragrance.url} target="_blank" rel="noopener noreferrer">
-                  View on Fragrantica
-                </a>
-              </p>
-            </S.SelectedFragrance>
-          )}
         </S.Container>
       );
 }

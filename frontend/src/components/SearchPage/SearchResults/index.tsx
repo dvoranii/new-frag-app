@@ -4,12 +4,15 @@ import * as S from './index.styled';
 interface SearchResultsProps {
   results: Fragrance[];
   onSelect: (fragrance: Fragrance) => void;
-  selectedId: string | null;
   loadingId: string | null;
   errorId: string | null;
 }
 
-export const SearchResults = ({ results, onSelect, selectedId, loadingId, errorId }: SearchResultsProps) => {
+export const SearchResults = ({ 
+    results, 
+    onSelect, 
+    loadingId, 
+    errorId }: SearchResultsProps) => {
   
     if (results.length === 0) return null;
 
@@ -19,7 +22,6 @@ export const SearchResults = ({ results, onSelect, selectedId, loadingId, errorI
           {results.map((result) => {
             const isLoading = loadingId === result.id;
             const isError = errorId === result.id;
-            const isSelected = selectedId === result.id;
     
             return (
               <S.ResultItem 
@@ -27,7 +29,6 @@ export const SearchResults = ({ results, onSelect, selectedId, loadingId, errorI
                 onClick={() => onSelect(result)}
                 data-loading={isLoading}
                 data-error={isError}
-                data-selected={isSelected}
               >
                 <S.ResultImage src={result.image} alt={result.title} />
                 <S.ResultInfo>
